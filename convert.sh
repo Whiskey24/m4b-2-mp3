@@ -96,8 +96,6 @@ printf "Selected book: %s\n\n" "${BOOKLIST[(($INPUT-1))]}"
 
 enterTitle
 
-#MP3FILE="/mnt/rapid-store/media/audiobooks/mp3/Fear the Future/Fear the Future.mp3"
-#OUTDIR="/mnt/rapid-store/media/audiobooks/mp3/Fear the Future/Chapters"
 convertToMp3
 
 splitInChapters
