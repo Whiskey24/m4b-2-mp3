@@ -1,6 +1,10 @@
 #!/bin/bash
 ## copied the essential bits from nitrag/convert_m4b.sh
 ## https://gist.github.com/nitrag/a188b8969a539ce0f7a64deb56c00277
+##
+## M4BDIR should contain m4b files that will be searched over
+## MP3DIR is the output directory where the mp3 files are saved to
+## FFMPEG should point to the ffmpeg executable
 
 M4BDIR="/mnt/rapid-store/media/audiobooks"
 MP3DIR="/mnt/rapid-store/media/audiobooks/mp3"
@@ -19,7 +23,7 @@ NCLR='\033[0m' # No Color
 ## Test if FFMPEG can be Found
 if [ ! -f "$FFMPEG" ]; then
     echo "Cannot find ffmpeg at $FFMPEG"
-	exit
+    exit
 fi
 
 # create MP3DIR if it does not exist
@@ -30,8 +34,6 @@ read -p "Enter search term or blank for all: " SEARCHTERM
 
 # Run the command and store results in an array
 readarray -d '' BOOKLIST < <(find $M4BDIR -type f -iname "*$SEARCHTERM*.m4b" -print0 )
-
-
 LENGTH=${#BOOKLIST[@]}
 
 # Block until the given file appears or the given timeout is reached.
@@ -72,6 +74,7 @@ chooseBook(){
         fi
     done
     unset _GOODINPUT
+    printf "Selected book: %s\n\n" "${BOOKLIST[(($INPUT-1))]}"
 }
 
 enterTitle(){
@@ -79,33 +82,26 @@ enterTitle(){
 }
 
 convertToMp3(){
-        OUTDIR="$MP3DIR/$BOOKTITLE"
-        mkdir -p "$OUTDIR"
-		printf "\nconverting m4b to mp3\n"
-        MP3FILE="$OUTDIR/$BOOKTITLE.mp3"
-        (${FFMPEG} -i "${BOOKLIST[(($INPUT-1))]}" -hide_banner -vn -acodec libmp3lame -ar 22050 -ab 64k "$MP3FILE")
-        OUTDIR="$MP3DIR/$BOOKTITLE/Chapters"
-        mkdir -p "$OUTDIR"
+    OUTDIR="$MP3DIR/$BOOKTITLE"
+    mkdir -p "$OUTDIR"
+    printf "\nconverting m4b to mp3\n"
+    MP3FILE="$OUTDIR/$BOOKTITLE.mp3"
+    (${FFMPEG} -i "${BOOKLIST[(($INPUT-1))]}" -hide_banner -vn -acodec libmp3lame -ar 22050 -ab 64k "$MP3FILE")
+    OUTDIR="$MP3DIR/$BOOKTITLE/Chapters"
+    mkdir -p "$OUTDIR"
 }
 
 splitInChapters(){
-	TMPFILE="$MP3DIR/$BOOKTITLE/tmp.txt"
+    TMPFILE="$MP3DIR/$BOOKTITLE/tmp.txt"
     (${FFMPEG} -i "$MP3FILE") 2> "$TMPFILE"
-	waitFile "$TMPFILE" 5 || {
-		echo "MP3 info file was not created after waiting for 5 seconds: '$TMPFILE'"
-		exit 1
-	}
+    waitFile "$TMPFILE" 5 || {
+        echo "MP3 info file was not created after waiting for 5 seconds: '$TMPFILE'"
+        exit 1
+    }
     CHAPTERCOUNT=`grep "Chapter #" "$TMPFILE" | wc -l`
     DIGITS=${#CHAPTERCOUNT}
     TRACK=1
     printf "Found %d chapters\n\n" $CHAPTERCOUNT
-    
-	# Get prefix zeros to pad chapter numbering in filenames
-	ZEROS=""
-	for (( c=1; c<$DIGITS; c++ ))
-    do
-        ZEROS="${ZEROS}0"
-    done
 
     while read -r first _ _ start _ end; do
         if [[ "${first}" = "Chapter" ]]
@@ -113,7 +109,7 @@ splitInChapters(){
             read  # discard line with Metadata:
             read _ _ chapter
             chapter=$(sed -re ":r;s/\b[0-9]{1,$((1))}\b/0&/g;tr" <<<$chapter)
-			# printf "\n======\nextracted chaptername: %s\n" "${chapter}"
+            # printf "\n======\nextracted chaptername: %s\n" "${chapter}"
 
             chapter_file=${chapter//[:]/꞉}  # replace colon with lookalike for Windows
             chapter_file=${chapter_file//[*]/_}  # replace windows non allowed char to _
@@ -127,28 +123,27 @@ splitInChapters(){
             chapter_file=${chapter_file//[\^]/_}  # replace windows non allowed char to _
             chapter_file=${chapter_file//[&]/_}  # replace windows non allowed char to _
 
-			# Get prefix zeros to pad chapter numbering in filenames
-			TRACKDIGITS=${#TRACK}
-			ZEROS=""
-			for (( c=1; c<=$((DIGITS-TRACKDIGITS)); c++ ))
-			do
-				ZEROS="${ZEROS}0"
-			done
-			chapter_file="${ZEROS}${TRACK} - ${chapter_file}.mp3"
+            # Get prefix zeros to pad chapter numbering in filenames
+            TRACKDIGITS=${#TRACK}
+            ZEROS=""
+            for (( c=1; c<=$((DIGITS-TRACKDIGITS)); c++ ))
+            do
+                ZEROS="${ZEROS}0"
+            done
+            chapter_file="${ZEROS}${TRACK} - ${chapter_file}.mp3"
 
-			printf "\nprocessing %d/%d :: %s\n" "$TRACK" "$CHAPTERCOUNT" "$chapter"
+            printf "\nprocessing %d/%d :: %s\n" "$TRACK" "$CHAPTERCOUNT" "$chapter"
             </dev/null ${FFMPEG} -loglevel error -stats -i "${MP3FILE}" -ss "${start%?}" -to "${end}" -codec:a copy -metadata title="${chapter}" -metadata track="$TRACK/$CHAPTERCOUNT" "${OUTDIR}/${chapter_file}"
-             
+
             TRACK=$((TRACK+1))
         fi
     done <"$TMPFILE"
-	rm "$TMPFILE"
+    rm "$TMPFILE"
 }
 
 showBookList
-chooseBook
 
-printf "Selected book: %s\n\n" "${BOOKLIST[(($INPUT-1))]}"
+chooseBook
 
 enterTitle
 
@@ -159,4 +154,3 @@ splitInChapters
 printf "\n\nMP3 files have been saved to: %s" "${OUTDIR}"
 
 printf "${NCLR}\n\n"
-            
