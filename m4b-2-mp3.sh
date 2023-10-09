@@ -1,7 +1,4 @@
 #!/bin/bash
-## copied the essential bits from nitrag/convert_m4b.sh
-## https://gist.github.com/nitrag/a188b8969a539ce0f7a64deb56c00277
-##
 ## Configure the variables in config.cfg
 
 CONFIG="config.cfg"
