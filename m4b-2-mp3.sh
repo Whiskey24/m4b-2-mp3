@@ -1,9 +1,10 @@
 #!/bin/bash
-## Configure the variables in config.cfg
+## For first use, copy config.ini.default to config.ini and configure the variables in that file
 
-CONFIG="config.cfg"
+CONFIG="config.ini"
 if [ ! -f "$CONFIG" ]; then
-    echo "Cannot find config file at $CONFIG"
+    printf "Cannot find config file %s\n" $CONFIG
+	printf "If running for the first time, copy config.ini.default to config.ini and update the configuration in that file\n\n"
     exit
 fi
 
@@ -13,28 +14,28 @@ fi
 checkFiles() {
     ## Test if FFMPEG can be found
     if [ ! -f "$FFMPEG" ]; then
-        echo "Cannot find ffmpeg at $FFMPEG"
+        printf "Cannot find ffmpeg at %s\n" $FFMPEG
         exit
     fi
 
-    ## Test if FFMPEG can be found
+    ## Test if convert function file can be found
     if [ ! -f "$CONVERTFILE" ]; then
-        echo "Cannot find file with convert functions at $CONVERTFILE"
-        #exit
+        printf "Cannot find file %s with convert functions\n" $CONVERTFILE
+        exit
     fi
     
     ## Test if m4b directory can be found
     if [ ! -d "$M4BDIR" ]; then
-        echo "Cannot find m4b directory at $M4BDIR"
+        printf "Cannot find m4b directory at %s\n" $M4BDIR
         exit
     fi      
     
     ## Test if mp3 directory can be found, if try not create it
     if [ ! -d "$MP3DIR" ]; then
-        echo "Cannot find mp3 directory at $MP3DIR, creating it"
+        printf "Cannot find mp3 directory at %s, creating it\n" $MP3DIR
         mkdir $MP3DIR
         if [ $? -ne 0 ] ; then
-            echo "Could not create mp3 directory at $MP3DIR"
+            printf "Could not create mp3 directory at %s\n" $MP3DIR
             exit
         fi
     fi
