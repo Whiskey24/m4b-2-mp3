@@ -6,41 +6,41 @@
 
 CONFIG="config.cfg"
 if [ ! -f "$CONFIG" ]; then
-	echo "Cannot find config file at $CONFIG"
-	exit
+    echo "Cannot find config file at $CONFIG"
+    exit
 fi
 
 ## Source config file
 . $CONFIG
 
 checkFiles() {
-	## Test if FFMPEG can be found
-	if [ ! -f "$FFMPEG" ]; then
-		echo "Cannot find ffmpeg at $FFMPEG"
-		exit
-	fi
+    ## Test if FFMPEG can be found
+    if [ ! -f "$FFMPEG" ]; then
+        echo "Cannot find ffmpeg at $FFMPEG"
+        exit
+    fi
 
-	## Test if FFMPEG can be found
-	if [ ! -f "$CONVERTFILE" ]; then
-		echo "Cannot find file with convert functions at $CONVERTFILE"
-		#exit
-	fi
-	
-	## Test if m4b directory can be found
-	if [ ! -d "$M4BDIR" ]; then
-		echo "Cannot find m4b directory at $M4BDIR"
-		exit
-	fi		
-	
-	## Test if mp3 directory can be found, if try not create it
-	if [ ! -d "$MP3DIR" ]; then
-		echo "Cannot find mp3 directory at $MP3DIR, creating it"
-		mkdir $MP3DIR
-		if [ $? -ne 0 ] ; then
-			echo "Could not create mp3 directory at $MP3DIR"
-			exit
-		fi
-	fi
+    ## Test if FFMPEG can be found
+    if [ ! -f "$CONVERTFILE" ]; then
+        echo "Cannot find file with convert functions at $CONVERTFILE"
+        #exit
+    fi
+    
+    ## Test if m4b directory can be found
+    if [ ! -d "$M4BDIR" ]; then
+        echo "Cannot find m4b directory at $M4BDIR"
+        exit
+    fi      
+    
+    ## Test if mp3 directory can be found, if try not create it
+    if [ ! -d "$MP3DIR" ]; then
+        echo "Cannot find mp3 directory at $MP3DIR, creating it"
+        mkdir $MP3DIR
+        if [ $? -ne 0 ] ; then
+            echo "Could not create mp3 directory at $MP3DIR"
+            exit
+        fi
+    fi
 }
 
 # function to show list with options to user
@@ -57,15 +57,15 @@ chooseBook(){
     until [ $_GOODINPUT ]; do
         printf "${CYAN}Please select a book:${NCLR} "
         read INPUT
-		if [ -z "$INPUT" ]; then
-            printf "${RED}Choose an option${NCLR}\n"	
+        if [ -z "$INPUT" ]; then
+            printf "${RED}Choose an option${NCLR}\n"    
         elif [[ -n ${INPUT//[0-9]/} ]]; then
             printf "${RED}Choose between 1 and %d, no letters allowed!${NCLR}\n" $LENGTH
         elif (( $INPUT == 0 )); then
             printf "${RED}Choose between 1 and %d, 0 is not an option!${NCLR}\n" $LENGTH
         elif (( $INPUT > $LENGTH )); then
             printf "${RED}Choose between 1 and %d, %d is not an option!${NCLR}\n" $LENGTH
-		else
+        else
             _GOODINPUT=1
         fi
     done
@@ -74,55 +74,55 @@ chooseBook(){
 }
 
 enterTitle(){
-	until [ $_GOODINPUT ]; do
+    until [ $_GOODINPUT ]; do
         read -p "Enter book title for directory: " BOOKTITLE
-		if [ -z "$BOOKTITLE" ]; then
+        if [ -z "$BOOKTITLE" ]; then
             printf "${RED}Title cannot be left empty${NCLR}\n"
-		else
-			_GOODINPUT=1
-		fi
-	done
-	unset _GOODINPUT
+        else
+            _GOODINPUT=1
+        fi
+    done
+    unset _GOODINPUT
 }
 
 searchBook() {
-	until [ $_GOODINPUT ]; do
-		# Ask for search term or blank for all
-		read -p "Enter search term or blank for all: " SEARCHTERM
+    until [ $_GOODINPUT ]; do
+        # Ask for search term or blank for all
+        read -p "Enter search term or blank for all: " SEARCHTERM
 
-		# Run the command and store results in an array
-		readarray -d '' BOOKLIST < <(find $M4BDIR -type f -iname "*$SEARCHTERM*.m4b" -print0 )
-		LENGTH=${#BOOKLIST[@]}
-		if (( $LENGTH == 0)); then
-			printf "${RED}No file found for search term \"%s\", please try again${NCLR}\n" $SEARCHTERM
-		else
-			_GOODINPUT=1
-		fi
-	done
-	unset _GOODINPUT
+        # Run the command and store results in an array
+        readarray -d '' BOOKLIST < <(find $M4BDIR -type f -iname "*$SEARCHTERM*.m4b" -print0 )
+        LENGTH=${#BOOKLIST[@]}
+        if (( $LENGTH == 0)); then
+            printf "${RED}No file found for search term \"%s\", please try again${NCLR}\n" $SEARCHTERM
+        else
+            _GOODINPUT=1
+        fi
+    done
+    unset _GOODINPUT
 }
 
 COUNT=1
 
 until [ $_DONE ]; do
 
-	searchBook
+    checkFiles
+    
+    searchBook
 
-	checkFiles
+    showBookList
 
-	showBookList
+    chooseBook
 
-	chooseBook
+    enterTitle
 
-	enterTitle
-
-	nohup bash $CONVERTFILE "${CONFIG}" "${BOOKTITLE}" "${BOOKLIST[(($INPUT-1))]}" > /dev/null &
-	
-	read -p "Convert another file? y/n: " ANOTHER
-	if [ "$ANOTHER" != "y" ]; then
-		printf "Number of files being converted: %d\n\n" $COUNT
-		_DONE=1	
-	fi
-	((COUNT=COUNT+1))
+    nohup bash $CONVERTFILE "${CONFIG}" "${BOOKTITLE}" "${BOOKLIST[(($INPUT-1))]}" > /dev/null &
+    
+    read -p "Convert another file? y/n: " ANOTHER
+    if [ "$ANOTHER" != "y" ]; then
+        printf "Number of files being converted: %d\n\n" $COUNT
+        _DONE=1 
+    fi
+    ((COUNT=COUNT+1))
 done
 
