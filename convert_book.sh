@@ -1,5 +1,10 @@
 ## Do not run this file directly, run m4b-2-mp3.sh
+##
+## copied the essential bits from nitrag/convert_m4b.sh
+## https://gist.github.com/nitrag/a188b8969a539ce0f7a64deb56c00277
+##
 
+## Obtain settings from main script
 CONFIG=$1
 BOOKTITLE=$2
 BOOKFILE=$3
@@ -79,18 +84,6 @@ splitInChapters(){
     done <"$TMPFILE"
     rm "$TMPFILE"
 }
-
-
-#BOOKTITLE=$1
-#BOOKFILE=$2
-
-#echo "waiting 10"
-#sleep 10
-
-#printf "\n\n$BOOKTITLE"
-#echo $BOOKFILE
-
-#exit
 
 convertToMp3
 
