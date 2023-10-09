@@ -4,6 +4,12 @@
 ## https://gist.github.com/nitrag/a188b8969a539ce0f7a64deb56c00277
 ##
 
+## do not allow running this script on its own
+if [[ -z $1 || -z $2 || -z $3 ]]; then
+    printf "This script cannot be run on its own, run m4b-2-mp3.sh instead\n"
+    exit
+fi
+
 ## Obtain settings from main script
 CONFIG=$1
 BOOKTITLE=$2
@@ -85,9 +91,24 @@ splitInChapters(){
     rm "$TMPFILE"
 }
 
+sendMsg(){
+    # only send a message if Telegram has been configured
+    if [[ ! -z $TELEGRAM_CHATID && ! -z $TELEGRAM_KEY ]]; then
+        # replace space with %20
+        TEXT=${1// /%20}
+        # replace \n with %0A for newlines
+        TEXT="${TEXT//\\n/"%0A"}"
+        curl -s --max-time $TELEGRAM_TIMEOUT -d "chat_id=${TELEGRAM_CHATID}&parse_mode=Markdown&text=$TEXT" ${TELEGRAM_URL} > /dev/null
+    fi
+}
+
+sendMsg "Starting mb4-2-mp3 conversion for ${BOOKTITLE}"
+
 convertToMp3
 
 splitInChapters
+
+sendMsg "Conversion complete for ${BOOKTITLE}\nFiles have been saved to ${OUTDIR}"
 
 printf "\n\nMP3 files have been saved to: %s" "${OUTDIR}"
 
