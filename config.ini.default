@@ -3,10 +3,12 @@
 
 ## M4BDIR should contain m4b files that will be searched over
 ## MP3DIR is the output directory where the mp3 files are saved to
-## FFMPEG should point to the ffmpeg executable
+## FFMPEG should point to the ffmpeg executable (https://ffmpeg.org/download.html)
+## EXIFTOOL should point to the exiftool executable (https://exiftool.org/exiftool_pod.html)
 M4BDIR="/mnt/media/audiobooks"
 MP3DIR="/mnt/media/audiobooks/mp3"
 FFMPEG="/usr/bin/ffmpeg"
+EXIFTOOL="usr/bin/exiftool"
 
 ## If you like to use Telegram notifications, set CHATID and KEY  
 ## To create a Telegram bot, see these instructions and copy the API token: https://core.telegram.org/bots#6-botfather

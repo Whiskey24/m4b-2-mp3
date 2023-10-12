@@ -48,6 +48,12 @@ checkFiles() {
             exit
         fi
     fi
+    
+    ## Test if ExifTool can be found
+    if [ ! -f "$EXIFTOOL" ]; then
+        printf "Will not use ExifTool, cannot find it at %s\n\n" $EXIFTOOL
+        exit
+    fi
 }
 
 # function to show list with options to user
