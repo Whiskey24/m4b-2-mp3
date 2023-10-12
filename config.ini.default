@@ -1,0 +1,30 @@
+
+## Set these variables
+
+## M4BDIR should contain m4b files that will be searched over
+## MP3DIR is the output directory where the mp3 files are saved to
+## FFMPEG should point to the ffmpeg executable
+M4BDIR="/mnt/media/audiobooks"
+MP3DIR="/mnt/media/audiobooks/mp3"
+FFMPEG="/usr/bin/ffmpeg"
+
+## If you like to use Telegram notifications, set CHATID and KEY  
+## To create a Telegram bot, see these instructions and copy the API token: https://core.telegram.org/bots#6-botfather
+## Add the bot to a chat in Telegram
+## In a browser, open this page https://api.telegram.org/bot<API-token>/getUpdates and note the chat ID
+TELEGRAM_CHATID=""
+TELEGRAM_KEY=""
+
+## No need to change these variables
+CONVERTFILE="convert_batch.sh"
+RED='\033[0;31m'
+CYAN='\033[0;36m'
+LGRN='\033[0;32m'
+BLUE='\033[0;34m'
+MAGE='\033[0;35m'
+YLLW='\033[1;33m'
+CYAL='\033[1;36m'
+NCLR='\033[0m'    # No Color
+
+TELEGRAM_TIMEOUT="10"
+TELEGRAM_URL="https://api.telegram.org/bot${TELEGRAM_KEY}/sendMessage"

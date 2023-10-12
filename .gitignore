@@ -1,0 +1,9 @@
+# Ignore everything
+*
+
+# But not these files...
+!.gitignore
+!config.ini.default
+!convert_single.sh
+!convert_batch.sh
+!m4b-2-mp3.sh
