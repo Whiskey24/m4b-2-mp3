@@ -48,6 +48,13 @@ checkFiles() {
             exit
         fi
     fi
+    
+    ## Test if ExifTool can be found
+    if [ ! -f "$EXIFTOOL" ]; then
+        printf "Will not use ExifTool, cannot find it at %s\n\n" $EXIFTOOL
+    else
+        EXIF=1
+    fi
 }
 
 # function to show list with options to user
@@ -115,20 +122,37 @@ searchBook() {
     unset _GOODINPUT
 }
 
+showExif() {
+    if [ $EXIF ]; then
+        (${EXIFTOOL} -Title -Artist -Narrator -MediaDuration "${BOOKLIST[(($INPUT-1))]}")
+        printf "\n"
+    fi
+}
+
+
+
 COUNT=1
+
+checkFiles
 
 until [ $_DONE ]; do
 
-    checkFiles
+    until [ $_SELECTED ]; do
+        searchBook
+        showBookList
+        chooseBook
+        showExif
 
-    searchBook
-
-    showBookList
-
-    chooseBook
-
+        read -p "Continue? y/n: " CONTINUE
+        if [ "$CONTINUE" = "y" ]; then
+            _SELECTED=1
+        fi    
+    done
+    
+    unset _SELECTED
+    
     enterTitle
-
+    
     nohup bash $CONVERTFILE "${CONFIG}" "${BOOKTITLE}" "${BOOKLIST[(($INPUT-1))]}" > /dev/null &
 
     # Sleep 1 sec to let the nohup message print
