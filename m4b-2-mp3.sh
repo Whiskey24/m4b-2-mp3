@@ -48,7 +48,7 @@ checkFiles() {
             exit
         fi
     fi
-    
+
     ## Test if ExifTool can be found
     if [ ! -f "$EXIFTOOL" ]; then
         printf "Will not use ExifTool, cannot find it at %s\n\n" $EXIFTOOL
@@ -146,13 +146,13 @@ until [ $_DONE ]; do
         read -p "Continue? y/n: " CONTINUE
         if [ "$CONTINUE" = "y" ]; then
             _SELECTED=1
-        fi    
+        fi
     done
-    
+
     unset _SELECTED
-    
+
     enterTitle
-    
+
     nohup bash $CONVERTFILE "${CONFIG}" "${BOOKTITLE}" "${BOOKLIST[(($INPUT-1))]}" > /dev/null &
 
     # Sleep 1 sec to let the nohup message print
