@@ -3,6 +3,7 @@
 
 # But not these files...
 !.gitignore
+!.gitattributes
 !config.ini.default
 !convert_single.sh
 !convert_batch.sh
