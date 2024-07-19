@@ -90,10 +90,10 @@ splitInChapters(){
     done <"$TMPFILE"
     rm "$TMPFILE"
     
-    if [[] "$DELETEMP3MASTERFILE" = true ]]; 
+    if [[ "$DELETEMP3MASTERFILE" = true ]]; 
     then
         rm "$MP3FILE"
-    done
+    fi
 }
 
 sendMsg(){

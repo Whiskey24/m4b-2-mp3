@@ -153,7 +153,13 @@ until [ $_DONE ]; do
 
     enterTitle
 
-    nohup bash $CONVERTFILE "${CONFIG}" "${BOOKTITLE}" "${BOOKLIST[(($INPUT-1))]}" > /dev/null &
+    if [[ "$HIDEOUTPUT" = true ]]; 
+    then
+        nohup bash $CONVERTFILE "${CONFIG}" "${BOOKTITLE}" "${BOOKLIST[(($INPUT-1))]}" > /dev/null &
+    else
+        bash $CONVERTFILE "${CONFIG}" "${BOOKTITLE}" "${BOOKLIST[(($INPUT-1))]}" &
+    fi
+    
 
     # Sleep 1 sec to let the nohup message print
     sleep 1
