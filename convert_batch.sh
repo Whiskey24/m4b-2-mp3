@@ -125,5 +125,4 @@ else
     printf "\n\nMP3 files have been saved to: %s" "${OUTDIR}"
 fi
 
-
 printf "${NCLR}\n\n"

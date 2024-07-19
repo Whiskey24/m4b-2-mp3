@@ -129,8 +129,6 @@ showExif() {
     fi
 }
 
-
-
 COUNT=1
 
 checkFiles
