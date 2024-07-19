@@ -94,8 +94,8 @@ splitInChapters(){
     then
         rm "$MP3FILE"
         ## move the mp3 chapter files in the root directory and delete the chapter directory
-         mv "${OUTDIR}/*" "$MP3DIR/$BOOKTITLE" 
-         rm "${OUTDIR}"
+         mv "${OUTDIR}"/* "$MP3DIR/$BOOKTITLE" 
+         rmdir "${OUTDIR}"
     fi
 }
 
