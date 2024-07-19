@@ -93,6 +93,9 @@ splitInChapters(){
     if [[ "$DELETEMP3MASTERFILE" = true ]]; 
     then
         rm "$MP3FILE"
+        ## move the mp3 chapter files in the root directory and delete the chapter directory
+         mv "${OUTDIR}/*" "$MP3DIR/$BOOKTITLE" 
+         rm "${OUTDIR}"
     fi
 }
 
@@ -113,8 +116,14 @@ convertToMp3
 
 splitInChapters
 
-sendMsg "Conversion complete for ${BOOKTITLE}\nFiles have been saved to ${OUTDIR}"
+if [[ "$DELETEMP3MASTERFILE" = true ]]; 
+then
+    sendMsg "Conversion complete for ${BOOKTITLE}\nFiles have been saved to ${MP3DIR}/${BOOKTITLE}"
+    printf "\n\nMP3 files have been saved to: %s" "${MP3DIR}/${BOOKTITLE}"
+else
+    sendMsg "Conversion complete for ${BOOKTITLE}\nFiles have been saved to ${OUTDIR}"
+    printf "\n\nMP3 files have been saved to: %s" "${OUTDIR}"
+fi
 
-printf "\n\nMP3 files have been saved to: %s" "${OUTDIR}"
 
 printf "${NCLR}\n\n"
