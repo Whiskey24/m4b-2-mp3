@@ -27,5 +27,5 @@ YLLW='\033[1;33m'
 CYAL='\033[1;36m'
 NCLR='\033[0m'      # No Color
 
-TELEGRAM_TIMEOUT="10"
+TELEGRAM_TIMEOUT="12"
 TELEGRAM_URL="https://api.telegram.org/bot${TELEGRAM_KEY}/sendMessage"
