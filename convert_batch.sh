@@ -83,7 +83,7 @@ splitInChapters(){
             chapter_file="${ZEROS}${TRACK} - ${chapter_file}.mp3"
 
             printf "\nprocessing %d/%d :: %s\n" "$TRACK" "$CHAPTERCOUNT" "$chapter"
-            </dev/null ${FFMPEG} -loglevel error -nostats -i "${MP3FILE}" -ss "${start%?}" -to "${end}" -codec:a copy -metadata title="${chapter}" -metadata track="$TRACK/$CHAPTERCOUNT" "${OUTDIR}/${chapter_file}"
+            </dev/null ${FFMPEG} -loglevel error -nostats -i "${MP3FILE}" -ss "${start%?}" -to "${end}" -codec:a copy -metadata title="${chapter}" -metadata track="$TRACK/$CHAPTERCOUNT" -metadata genre="Audiobook" "${OUTDIR}/${chapter_file}"
 
             TRACK=$((TRACK+1))
         fi
