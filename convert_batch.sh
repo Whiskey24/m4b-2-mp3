@@ -169,11 +169,41 @@ CalculateConversionSpeed() {
   printf "%d B/s (%d.%02d MB/s)\n" "$bytes_per_sec" "$mb_int" "$mb_dec"
 }
 
+EstimateFinishTime() {
+  local bytes=$1
+  local speed=$2
+
+  if (( speed <= 0 )); then
+    echo "Invalid speed: must be greater than zero."
+    return 1
+  fi
+
+  # Calculate estimated time in seconds (truncate to integer)
+  local total_seconds=$(( bytes / speed ))
+
+  # Format as hh:mm:ss
+  local hh=$(( total_seconds / 3600 ))
+  local mm=$(( (total_seconds % 3600) / 60 ))
+  local ss=$(( total_seconds % 60 ))
+  local formatted_time
+  printf -v formatted_time "%02d:%02d:%02d" "$hh" "$mm" "$ss"
+
+  # Calculate expected finish time (current time + estimated seconds)
+  local finish_time
+  finish_time=$(date -d "+$total_seconds seconds" +"%Y-%m-%d %H:%M:%S" 2>/dev/null || date -v+${total_seconds}S +"%Y-%m-%d %H:%M:%S")
+
+  echo "Estimated time: $formatted_time\nExpected finish: $finish_time"
+}
+
 # Get filesize in bytes and MB
 FILESIZE=$(getFileSize "${BOOKFILE}")
 FILESIZEMB=$(( ${FILESIZE} / 1048576 ))
 
-sendMsg "Starting mb4-2-mp3 conversion for ${BOOKTITLE} (${FILESIZEMB} MB)"
+FINISH=""
+if (${CONVERSIONSPEED} > 0)); then
+    FINISH=EstimateFinishTime($FILESIZE, $CONVERSIONSPEED)
+fi
+sendMsg "Starting mb4-2-mp3 conversion for ${BOOKTITLE} (${FILESIZEMB} MB)\n${FINISH}"
 
 convertToMp3
 
@@ -190,10 +220,10 @@ CONVERSIONSPEED=$(CalculateConversionSpeed "$ELAPSEDTIME" "$FILESIZE")
 
 if [[ "$DELETEMP3MASTERFILE" = true ]]; 
 then
-    sendMsg "Conversion complete for ${BOOKTITLE}\nFiles have been saved to ${MP3DIR}/${BOOKTITLE}\nTime taken: ${TIMETAKEN}\nConversion speed: ${CONVERSIONSPEED}"
+    sendMsg "Conversion complete for ${BOOKTITLE}\nFiles have been saved to ${MP3DIR}/${BOOKTITLE}\nFile size: ${FILESIZEMB} MB\nTime taken: ${TIMETAKEN}\nConversion speed: ${CONVERSIONSPEED}"
     printf "\n\nMP3 files have been saved to: %s" "${MP3DIR}/${BOOKTITLE}"
 else
-    sendMsg "Conversion complete for ${BOOKTITLE}\nFiles have been saved to ${MP3DIR}/${BOOKTITLE}\nTime taken: ${TIMETAKEN}\nConversion speed: ${CONVERSIONSPEED}"
+    sendMsg "Conversion complete for ${BOOKTITLE}\nFiles have been saved to ${MP3DIR}/${BOOKTITLE}\nFile size: ${FILESIZEMB} MB\nTime taken: ${TIMETAKEN}\nConversion speed: ${CONVERSIONSPEED}"
     printf "\n\nMP3 files have been saved to: %s" "${OUTDIR}"
 fi
 

@@ -7,12 +7,14 @@
 ## DELETEMP3MASTERFILE the script first converts the m4b file into a single master mp3 file
 ##                     when set to true the master mp3 file is deleted after all chapters have been extracted
 ## HIDEOUTPUT will suppress console output when set to true
+## CONVERSIONSPEED is estimated conversion speed in bytes/second, when set to zero the script will not use this
 M4BDIR="/mnt/media/audiobooks"
 MP3DIR="/mnt/media/audiobooks/mp3"
 FFMPEG="/usr/bin/ffmpeg"
 EXIFTOOL="/usr/bin/exiftool"
 DELETEMP3MASTERFILE=true
 HIDEOUTPUT=true
+CONVERSIONSPEED=0
 
 ## If you like to use Telegram notifications, set CHATID and KEY  
 ## To create a Telegram bot, see these instructions and copy the API token: https://core.telegram.org/bots#6-botfather
