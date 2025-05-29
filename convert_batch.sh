@@ -10,12 +10,15 @@ if [[ -z $1 || -z $2 || -z $3 ]]; then
     exit
 fi
 
+# Get start time of script execution
+START=$EPOCHREALTIME
+
 ## Obtain settings from main script
 CONFIG=$1
 BOOKTITLE=$2
 BOOKFILE=$3
 
-## Source config file
+# Source config file
 . $CONFIG
 
 # Block until the given file appears or the given timeout is reached.
@@ -29,6 +32,23 @@ waitFile() {
     until test $((wait_seconds--)) -eq 0 -o -e "$file" ; do sleep 1; done
 
     test $wait_seconds -ge 0 # equivalent: let ++wait_seconds
+}
+
+# Function to get filesize in bytes
+getFileSize() {
+  local file="$1"
+  if [[ -f "$file" ]]; then
+    if stat --version &>/dev/null; then
+      # GNU stat
+      stat -c%s "$file"
+    else
+      # BSD/macOS stat
+      stat -f%z "$file"
+    fi
+  else
+    echo "Error: '$file' is not a file" >&2
+    return 1
+  fi
 }
 
 convertToMp3(){
@@ -110,18 +130,60 @@ sendMsg(){
     fi
 }
 
-sendMsg "Starting mb4-2-mp3 conversion for ${BOOKTITLE}"
+# report exectution time from microseconds in readable format
+formattedExecutionTime(){
+    local elapsed=$1
+
+    # Convert to hours, minutes, and integer seconds
+    local hh=$(echo "$elapsed / 3600" | bc)
+    local mm=$(echo "($elapsed % 3600) / 60" | bc)
+    local ss=$(echo "$elapsed % 60" | bc)  # Truncate to integer
+    printf "%02d:%02d:%02d (hh:mm:ss)" "$hh" "$mm" "$ss"
+}
+
+CalculateConversionSpeed() {
+  local microseconds=$1
+  local bytes=$2
+
+  if [[ $microseconds -eq 0 ]]; then
+    echo "Speed: N/A (duration is zero)"
+    return 1
+  fi
+
+  # Convert microseconds to seconds as a float
+  local seconds=$(echo "scale=6; $microseconds / 1000000" | bc)
+
+  # Calculate speeds
+  local bytes_per_sec=$(echo "scale=2; $bytes / $seconds" | bc)
+  local mb_per_sec=$(echo "scale=2; $bytes_per_sec / 1024 / 1024" | bc)
+
+  echo "$bytes_per_sec B/s ($mb_per_sec MB/s)"
+}
+
+# Get filesize in bytes and MB
+FILESIZE=$(getFileSize $BOOKFILE)
+FILESIZEMB=$(echo "scale=2; $FILESIZE/1024/1024" | bc)
+
+sendMsg "Starting mb4-2-mp3 conversion for ${BOOKTITLE} [$FILESIZEMB MB]"
 
 convertToMp3
 
 splitInChapters
 
+# Get script execution time in microsecond precision
+ELAPSEDTIME=$(echo "($EPOCHREALTIME - $START) * 1000" | bc)
+
+# Get formatted execution time and conversion speed
+TIMETAKEN=$(formattedExecutionTime "$ELAPSEDTIME")
+CONVERSIONSPEED=$(CalculateConversionSpeed "$ELAPSEDTIME" "$FILESIZE")
+
+
 if [[ "$DELETEMP3MASTERFILE" = true ]]; 
 then
-    sendMsg "Conversion complete for ${BOOKTITLE}\nFiles have been saved to ${MP3DIR}/${BOOKTITLE}"
+    sendMsg "Conversion complete for ${BOOKTITLE}\nFiles have been saved to ${MP3DIR}/${BOOKTITLE}\nTime taken: ${TIMETAKEN}\nConversion speed: ${CONVERSIONSPEED}"
     printf "\n\nMP3 files have been saved to: %s" "${MP3DIR}/${BOOKTITLE}"
 else
-    sendMsg "Conversion complete for ${BOOKTITLE}\nFiles have been saved to ${OUTDIR}"
+    sendMsg "Conversion complete for ${BOOKTITLE}\nFiles have been saved to ${MP3DIR}/${BOOKTITLE}\nTime taken: ${TIMETAKEN}\nConversion speed: ${CONVERSIONSPEED}"
     printf "\n\nMP3 files have been saved to: %s" "${OUTDIR}"
 fi
 
