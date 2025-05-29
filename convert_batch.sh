@@ -131,14 +131,18 @@ sendMsg(){
 }
 
 # report exectution time from seconds in hh mm ss format
-formattedExecutionTime(){
+formattedExecutionTime() {
     local elapsed=$1
 
-    # Convert to hours, minutes, and integer seconds
-    local hh=$((echo "$elapsed / 3600"))
-    local mm=$((echo "($elapsed % 3600) / 60"))
-    local ss=$((echo "$elapsed % 60"))  # Truncate to integer
-    printf "%02d:%02d:%02d (hh:mm:ss)" "$hh" "$mm" "$ss"
+    # Extract integer seconds (discard fractional part, shouldn't be needed)
+    local total_seconds=${elapsed%.*}
+
+    # Calculate hours, minutes, and seconds
+    local hh=$(( total_seconds / 3600 ))
+    local mm=$(( (total_seconds % 3600) / 60 ))
+    local ss=$(( total_seconds % 60 ))
+
+    printf "%02d:%02d:%02d (hh:mm:ss)\n" "$hh" "$mm" "$ss"
 }
 
 CalculateConversionSpeed() {
@@ -161,7 +165,7 @@ CalculateConversionSpeed() {
 FILESIZE=$(getFileSize "${BOOKFILE}")
 FILESIZEMB=$(( ${FILESIZE} / 1048576 ))
 
-sendMsg "Starting mb4-2-mp3 conversion for ${BOOKTITLE} [${FILESIZEMB} MB]"
+sendMsg "Starting mb4-2-mp3 conversion for ${BOOKTITLE} (${FILESIZEMB} MB)"
 
 convertToMp3
 
