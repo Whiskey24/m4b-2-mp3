@@ -11,7 +11,7 @@ if [[ -z $1 || -z $2 || -z $3 ]]; then
 fi
 
 # Get start time of script execution
-START=$EPOCHREALTIME
+SECONDS=0
 
 ## Obtain settings from main script
 CONFIG=$1
@@ -130,28 +130,25 @@ sendMsg(){
     fi
 }
 
-# report exectution time from microseconds in readable format
+# report exectution time from seconds in hh mm ss format
 formattedExecutionTime(){
     local elapsed=$1
 
     # Convert to hours, minutes, and integer seconds
-    local hh=$(echo "$elapsed / 3600" | bc)
-    local mm=$(echo "($elapsed % 3600) / 60" | bc)
-    local ss=$(echo "$elapsed % 60" | bc)  # Truncate to integer
+    local hh=$((echo "$elapsed / 3600"))
+    local mm=$((echo "($elapsed % 3600) / 60"))
+    local ss=$((echo "$elapsed % 60"))  # Truncate to integer
     printf "%02d:%02d:%02d (hh:mm:ss)" "$hh" "$mm" "$ss"
 }
 
 CalculateConversionSpeed() {
-  local microseconds=$1
+  local seconds=$1
   local bytes=$2
 
-  if [[ $microseconds -eq 0 ]]; then
+  if [[ $seconds -eq 0 ]]; then
     echo "Speed: N/A (duration is zero)"
     return 1
   fi
-
-  # Convert microseconds to seconds as a float
-  local seconds=$(echo "scale=6; $microseconds / 1000000" | bc)
 
   # Calculate speeds
   local bytes_per_sec=$(echo "scale=2; $bytes / $seconds" | bc)
@@ -170,8 +167,9 @@ convertToMp3
 
 splitInChapters
 
-# Get script execution time in microsecond precision
-ELAPSEDTIME=$(echo "($EPOCHREALTIME - $START) * 1000" | bc)
+# Get script execution time in seconds 
+ELAPSEDTIME=$SECONDS
+
 
 # Get formatted execution time and conversion speed
 TIMETAKEN=$(formattedExecutionTime "$ELAPSEDTIME")
