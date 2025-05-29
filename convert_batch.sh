@@ -200,9 +200,10 @@ FILESIZE=$(getFileSize "${BOOKFILE}")
 FILESIZEMB=$(( ${FILESIZE} / 1048576 ))
 
 FINISH=""
-if (( ${CONVERSIONSPEED} > 0)); then
-    FINISH=EstimateFinishTime($FILESIZE, $CONVERSIONSPEED)
+if [[ "$CONVERSIONSPEED" =~ ^[0-9]+$ ]] && (( CONVERSIONSPEED > 0 )); then
+    FINISH=$(EstimateFinishTime "$FILESIZE" "$CONVERSIONSPEED")
 fi
+
 sendMsg "Starting mb4-2-mp3 conversion for ${BOOKTITLE} (${FILESIZEMB} MB)\n${FINISH}"
 
 convertToMp3
