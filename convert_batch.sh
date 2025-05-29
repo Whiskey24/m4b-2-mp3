@@ -161,10 +161,8 @@ CalculateConversionSpeed() {
 }
 
 # Get filesize in bytes and MB
-FILESIZE=$(getFileSize $BOOKFILE)
-echo "FILESIZE: ${FILESIZE}"
+FILESIZE=$(getFileSize "${BOOKFILE}")
 FILESIZEMB=$(echo "scale=2; $FILESIZE/1024/1024" | bc)
-echo "FILESIZEMB: ${FILESIZEMB}"
 
 sendMsg "Starting mb4-2-mp3 conversion for ${BOOKTITLE} [${FILESIZEMB} MB]"
 
