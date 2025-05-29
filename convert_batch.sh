@@ -166,7 +166,7 @@ echo "FILESIZE: ${FILESIZE}"
 FILESIZEMB=$(echo "scale=2; $FILESIZE/1024/1024" | bc)
 echo "FILESIZEMB: ${FILESIZEMB}"
 
-sendMsg "Starting mb4-2-mp3 conversion for ${BOOKTITLE} [$FILESIZEMB MB]"
+sendMsg "Starting mb4-2-mp3 conversion for ${BOOKTITLE} [${FILESIZEMB} MB]"
 
 convertToMp3
 
