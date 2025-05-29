@@ -149,16 +149,24 @@ CalculateConversionSpeed() {
   local seconds=$1
   local bytes=$2
 
-  if [[ $seconds -eq 0 ]]; then
+  if (( seconds == 0 )); then
     echo "Speed: N/A (duration is zero)"
     return 1
   fi
 
-  # Calculate speeds
-  local bytes_per_sec=$(echo "scale=2; $bytes / $seconds" | bc)
-  local mb_per_sec=$(echo "scale=2; $bytes_per_sec / 1024 / 1024" | bc)
+  # Calculate bytes per second (integer)
+  local bytes_per_sec=$(( bytes / seconds ))
 
-  echo "$bytes_per_sec B/s ($mb_per_sec MB/s)"
+  # Calculate MB per second scaled by 100 (to get two decimal places)
+  # MB = bytes / (1024*1024)
+  # To keep two decimals: mb_per_sec_100 = (bytes_per_sec * 100) / (1024*1024)
+  local mb_per_sec_100=$(( (bytes_per_sec * 100) / 1048576 ))
+
+  # Format MB/s as integer part and two decimals
+  local mb_int=$(( mb_per_sec_100 / 100 ))
+  local mb_dec=$(( mb_per_sec_100 % 100 ))
+
+  printf "%d B/s (%d.%02d MB/s)\n" "$bytes_per_sec" "$mb_int" "$mb_dec"
 }
 
 # Get filesize in bytes and MB
